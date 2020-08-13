@@ -19,7 +19,9 @@ class BurgerBuilder extends Component {
     price: 4,
     purchasable: false,
     purchasing: false,
-    loading: false
+    loading: false,
+    shipping: "delivery",
+    deliveryFee: 2
   }
 
   componentDidMount () {
@@ -100,7 +102,7 @@ class BurgerBuilder extends Component {
     const order = {
       price: this.state.price,
       customer: null,
-      deliveryMethod: "fast",
+      deliveryMethod: this.state.deliveryMethod,
       salad: this.state.ingredients.salad,
       bacon: this.state.ingredients.bacon,
       cheese: this.state.ingredients.cheese,
@@ -122,6 +124,16 @@ class BurgerBuilder extends Component {
       .catch(error => {
         this.setState({loading: false, purchasing: false});
       });
+  }
+
+  shippingHandler = (ship) => {
+      let dF = ship==="delivery" ? 2 : 0;
+
+      this.setState({
+        shipping: ship,
+        deliveryFee: dF
+      });
+
   }
 
   render () {
@@ -148,9 +160,12 @@ class BurgerBuilder extends Component {
       </>;
       loader = <OrderSummary
         ingredients = {this.state.ingredients}
+        shipping = {this.shippingHandler}
         purchaseCanceled = {this.purchaseCancelHandler}
         purchaseContinued = {this.purchaseContinueHandler}
-        price = {this.state.price}/>;
+        price = {this.state.price}
+        deliveryFee = {this.state.deliveryFee}
+        shippingState = {this.state.shipping}/>;
     }
     if (this.state.loading) {
       loader = <Spinner />;
