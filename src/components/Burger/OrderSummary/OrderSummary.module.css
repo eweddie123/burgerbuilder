@@ -1,0 +1,23 @@
+.Selected {
+  background-color: rgb(100, 203, 36);
+  border: none;
+  border-radius: 5px;
+  color: white;
+  outline: none;
+  cursor: pointer;
+  font: inherit;
+  padding: 10px;
+  margin: 10px;
+  font-weight: bold;
+}
+.Unselected {
+  background-color: white;
+  border: none;
+  color: black;
+  outline: none;
+  cursor: pointer;
+  font: inherit;
+  padding: 10px;
+  margin: 10px;
+  font-weight: bold;
+}

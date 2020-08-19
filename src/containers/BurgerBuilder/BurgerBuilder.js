@@ -19,7 +19,9 @@ class BurgerBuilder extends Component {
     price: 4,
     purchasable: false,
     purchasing: false,
-    loading: false
+    loading: false,
+    shipping: "delivery",
+    deliveryFee: 2
   }
 
   componentDidMount () {
@@ -90,77 +92,48 @@ class BurgerBuilder extends Component {
     this.setState({
       loading: true
     });
-    const address = {
-      street: 'Wake Forrest Run',
-      zipcode: '93178',
-      country: 'United States'
+    const customer = {
+      email: "tester@gmail.com",
+      name: "test",
+      country: "USA",
+      street: "Wake Forrest Run",
+      zipcode: "11111"
     };
-    let addressId = null;
-    axios.post('/address/add', address)
+    const order = {
+      price: this.state.price,
+      customer: null,
+      deliveryMethod: this.state.deliveryMethod,
+      salad: this.state.ingredients.salad,
+      bacon: this.state.ingredients.bacon,
+      cheese: this.state.ingredients.cheese,
+      meat:this.state.ingredients.meat
+    }
+    axios.post('/customer/add', customer)
       .then(response => {
         console.log(response);
-        let query = '/address/get?street=' + address.street + '&zipcode='
-        + address.zipcode + '&country=' + address.country;
-        axios.get(query.replace(' ', '%20'))
-        .then(response => {
-          console.log(response);
-          addressId = response.data.addressId;
-          const customer = {
-            name: 'Eddie',
-            address: addressId,
-            email: 'eweddie123@gmail.com'
-          }
-          let customerId = null;
-          axios.post('/customer/add', customer)
-            .then(response => {
-              console.log(response);
-              let query = '/customer/get?name=' + customer.name + '&address='
-              + customer.address + '&email=' + customer.email;
-              axios.get(query.replace(' ', '%20').replace('@', '%40'))
-              .then(response => {
-                console.log(response);
-                customerId = response.data.customerId;
-                let ingredientsId = null;
-                axios.post('/ingredients/add', this.state.ingredients)
-                .then(response => {
-                  console.log(response);
-                  let query = '/ingredients/get?salad=' + this.state.ingredients.salad
-                  + '&cheese=' + this.state.ingredients.cheese + '&bacon=' + this.state.ingredients.bacon
-                  + '&meat=' + this.state.ingredients.meat;
-                  axios.get(query.replace(' ', '%20'))
-                  .then(response => {
-                    console.log(response);
-                    ingredientsId = response.data.ingredientsId;
-                    const order = {
-                      ingredients: ingredientsId,
-                      price: this.state.price,
-                      customer: customerId,
-                      deliveryMethod: 'fastest'
-                    }
-                    axios.post('/orders/add', order)
-                    .then(response => {
-                      console.log(response);
-                      this.setState({loading: false, purchasing: false});
-                    })
-                    .catch(error => {
-                         this.setState({loading : false, purchasing: false});
-                    });
-                  });
-                });
-              });
-            });
+        order.customer = response.data;
+        axios.post('/orders/add', order)
+          .then(response => {
+            console.log(response);
+            this.setState({loading: false, purchasing: false});
+          })
+          .catch(error => {
+            this.setState({loading: false, purchasing: false});
           });
-        });
+      })
+      .catch(error => {
+        this.setState({loading: false, purchasing: false});
+      });
+  }
 
+  shippingHandler = (ship) => {
+      let dF = ship==="delivery" ? 2 : 0;
 
+      this.setState({
+        shipping: ship,
+        deliveryFee: dF
+      });
 
-    // axios.post('/orders.json', order)
-    //   .then(response => {
-    //     this.setState({loading: false, purchasing: false});
-    //   })
-    //   .catch(error => {
-    //     this.setState({loading : false, purchasing: false});
-    //   });
   }
 
   render () {
@@ -187,9 +160,12 @@ class BurgerBuilder extends Component {
       </>;
       loader = <OrderSummary
         ingredients = {this.state.ingredients}
+        shipping = {this.shippingHandler}
         purchaseCanceled = {this.purchaseCancelHandler}
         purchaseContinued = {this.purchaseContinueHandler}
-        price = {this.state.price}/>;
+        price = {this.state.price}
+        deliveryFee = {this.state.deliveryFee}
+        shippingState = {this.state.shipping}/>;
     }
     if (this.state.loading) {
       loader = <Spinner />;
