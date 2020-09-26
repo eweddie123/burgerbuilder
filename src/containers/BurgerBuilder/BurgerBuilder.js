@@ -21,7 +21,8 @@ class BurgerBuilder extends Component {
     purchasing: false,
     loading: false,
     shipping: "delivery",
-    deliveryFee: 2
+    deliveryFee: 2,
+    deliveryMethod: "fast"
   }
 
   componentDidMount () {
@@ -92,12 +93,13 @@ class BurgerBuilder extends Component {
     this.setState({
       loading: true
     });
+    // next step is to make customer below customizable/interactive
     const customer = {
       email: "tester@gmail.com",
       name: "test",
-      country: "USA",
-      street: "Wake Forrest Run",
-      zipcode: "11111"
+      country: "United States of America",
+      street: "Johns Creek",
+      zipcode: "13012"
     };
     const order = {
       price: this.state.price,
@@ -112,16 +114,15 @@ class BurgerBuilder extends Component {
       .then(response => {
         console.log(response);
         order.customer = response.data;
+        console.log(order);
         axios.post('/orders/add', order)
           .then(response => {
             console.log(response);
             this.setState({loading: false, purchasing: false});
-          })
-          .catch(error => {
+          }).catch(error => {
             this.setState({loading: false, purchasing: false});
           });
-      })
-      .catch(error => {
+      }).catch(error => {
         this.setState({loading: false, purchasing: false});
       });
   }
